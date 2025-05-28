@@ -2,10 +2,13 @@
 
 @import '@skeletonlabs/skeleton';
 @import '@skeletonlabs/skeleton/optional/presets';
-@import '@skeletonlabs/skeleton/themes/cerberus';
+@import '@skeletonlabs/skeleton/themes/mint';
+
 
 @source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
 
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
-@import '@skeletonlabs/skeleton/themes/mint';
+
+@import "prismjs/themes/prism-tomorrow.css";
+@import "prismjs/plugins/line-numbers/prism-line-numbers.css";

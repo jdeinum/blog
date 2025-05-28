@@ -5,7 +5,7 @@ author: "Your Name"
 tags: ["svelte", "javascript", "tutorial"]
 ---
 
-# Getting Started with SvelteKit
+# Getting **Started** with SvelteKit
 
 SvelteKit is a modern framework for building web applications with **Svelte**.
 
@@ -21,9 +21,9 @@ Learn more at [SvelteKit docs](https://kit.svelte.dev).
 
 Here's how you create a simple Svelte component:
 
-```svelte
-<script>
-  let name = "world";
-</script>
 
-<h1>Hello {name}!</h1>
+```rust
+async fn hello() {
+
+}
+```

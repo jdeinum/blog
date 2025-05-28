@@ -6,7 +6,8 @@ import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeRaw from "rehype-raw";
 import rehypeStringify from "rehype-stringify";
-import rehypeHighlight from "rehype-highlight";
+import rehypePrism from "rehype-prism-plus"; 
+import rehypePrettyCode from 'rehype-pretty-code';
 
 
 export function renderMarkdown(content: string): { html: string; metadata: any } {
@@ -14,9 +15,12 @@ export function renderMarkdown(content: string): { html: string; metadata: any }
     .use(remarkParse)
     .use(remarkFrontmatter, ["yaml"])
     .use(remarkParseFrontmatter)
+    .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
-    .use(rehypeHighlight)
+    .use(rehypePrism, {
+      showLineNumbers: true,
+    })
     .use(rehypeStringify)
     .processSync(content);
 
@@ -25,4 +29,3 @@ export function renderMarkdown(content: string): { html: string; metadata: any }
 
   return { html, metadata };
 }
-

@@ -5,7 +5,7 @@ const POSTS_PER_PAGE = 10;
 
 export const load: PageServerLoad = async ({ url }) => {
   const page = Number(url.searchParams.get('page')) || 1;
-  const allPosts = getAllPosts();
+  const allPosts = await getAllPosts();
 
   const totalPosts = allPosts.length;
   const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
