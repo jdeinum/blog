@@ -35,6 +35,8 @@
 </script>
 
 <div class="max-w-5xl mx-auto p-4">
+
+
   <!-- Centered Search Input -->
   <div class="flex justify-center mb-8">
     <div class="relative w-full sm:w-96">

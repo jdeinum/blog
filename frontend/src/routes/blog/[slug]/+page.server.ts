@@ -12,7 +12,7 @@ export async function load({ params }) {
   }
 
   const content = fs.readFileSync(postPath, 'utf-8');
-  const { html, metadata } = renderMarkdown(content);
+  const { html, metadata } = await renderMarkdown(content);
   
 
   return {

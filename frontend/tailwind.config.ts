@@ -6,7 +6,13 @@ const config: Config = {
   theme: {
     extend: {}
   },
-  plugins: [typography]
+  plugins: [typography],
+
+  safelist: [
+    'line',
+    'line--highlighted',
+    'code-highlight'
+  ]
 }
 
 export default config
