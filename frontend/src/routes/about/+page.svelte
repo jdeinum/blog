@@ -41,12 +41,26 @@
 
   <main class="flex-1">
     <section class="card preset-filled-surface-100-900 p-6 shadow-lg rounded-xl backdrop-blur-sm bg-opacity-60">
+
+
       <!-- About Me -->
       <h2 class="text-2xl font-semibold mb-4 font-mono">About Me</h2>
       <p class="text-gray-800 dark:text-gray-300 font-sans leading-relaxed mb-6">
         Welcome to my blog! I am a developer residing in Alberta, Canada, but
         originally from the Netherlands. Outside of work, I love to backpack,
         fish, climb, and play video / board games.
+      </p>
+
+      <hr class="hr my-6" />
+
+      <!-- Day job -->
+      <h2 class="text-2xl font-semibold mb-4 font-mono">Work</h2>
+      <p class="text-gray-800 dark:text-gray-300 font-sans leading-relaxed mb-6">
+        I spend my days writing Rust at CarbinX Technologies
+        (formerly CleanO2). We are developing a microscale carbon capture device
+        that aims to reduce carbon emissions in commercial buildings while also
+        lowering energy costs. Our vision is to make them affordable, and
+        efficient enough to have them in households across the globe.
       </p>
 
       <hr class="hr my-6" />
