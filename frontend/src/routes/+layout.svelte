@@ -3,6 +3,7 @@
   import BookText from '@lucide/svelte/icons/book-text';
   import CircleUser from '@lucide/svelte/icons/circle-user';
   import { goto } from '$app/navigation';
+  import Lightswitch from "$lib/light_switch.svelte"
 	import '../app.css';
 
 	let { children } = $props();
@@ -14,11 +15,12 @@
     <div></div>
   {/snippet}
   {#snippet trail()}
-    <div class="ml-auto flex gap-2 items-center">
-      <button onclick={() => goto('/blog')}>
+    <div class="ml-auto flex gap-3 items-center">
+      <Lightswitch />
+      <button on:click={() => goto('/blog')}>
         <BookText size={20} />
       </button>
-      <button onclick={() => goto('/about')}>
+      <button on:click={() => goto('/about')}>
         <CircleUser size={20} />
       </button>
     </div>
