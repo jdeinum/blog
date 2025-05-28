@@ -1,17 +1,22 @@
-import type { PageServerLoad, EntryGenerator } from './$types';
-import { getPostBySlug, getAllPosts } from '$lib/posts';
+import fs from 'fs';
+import path from 'path';
+import { error } from '@sveltejs/kit';
+import { renderMarkdown } from '$lib/markdown_pipeline';
 
-export const prerender = true;
+export async function load({ params }) {
+  const slug = params.slug;
+  const postPath = path.resolve('src/posts', slug, 'index.md');
 
-export const entries: EntryGenerator = () => {
-  return getAllPosts().map((post) => ({ slug: post.slug }));
-};
-
-export const load: PageServerLoad = async ({ params }) => {
-  const post = await getPostBySlug(params.slug);
-  if (!post) {
-    return { status: 404 };
+  if (!fs.existsSync(postPath)) {
+    throw error(404, 'Post not found');
   }
-  return { post };
-};
 
+  const content = fs.readFileSync(postPath, 'utf-8');
+  const { html, metadata } = renderMarkdown(content);
+  
+
+  return {
+    content: html,
+    metadata
+  };
+}

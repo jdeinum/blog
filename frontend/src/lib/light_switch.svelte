@@ -23,6 +23,6 @@
   </script>
 </svelte:head>
 
-<button on:click={() => onCheckedChange({ checked: !checked })}>
+<button onclick={() => onCheckedChange({ checked: !checked })}>
   <Sun size={20} />
 </button>

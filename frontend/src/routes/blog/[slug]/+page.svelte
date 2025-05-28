@@ -1,17 +1,7 @@
 <script lang="ts">
-  export let data;
-  const { post } = data;
+  export let data: { content: string };
 </script>
 
-<article>
-  <h1>{post.frontmatter.title}</h1>
-  <p>{post.frontmatter.date}</p>
-  <div class="content" dangerouslySetInnerHTML={{ __html: post.html }}></div>
+<article class="prose prose-lg max-w-none">
+  {@html data.content}
 </article>
-
-<style>
-  .content :global(p) {
-    margin-bottom: 1em;
-  }
-</style>
-

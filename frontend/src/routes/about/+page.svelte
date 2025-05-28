@@ -40,7 +40,7 @@
       <!-- About Me -->
       <h2 class="text-2xl font-semibold mb-4 font-mono">About Me</h2>
       <p class="text-gray-800 dark:text-gray-300 font-sans leading-relaxed mb-6">
-        Welcome to my site! I am a developer currently in Alberta, Canada, but
+        Welcome to my blog! I am a developer residing in Alberta, Canada, but
         originally from the Netherlands. Outside of work, I love to backpack,
         fish, climb, and play video / board games.
       </p>
@@ -54,7 +54,7 @@
         University of Alberta in 2022.
       </p>
       <p class="text-gray-800 dark:text-gray-300 font-sans leading-relaxed mb-4">
-        During that time I:
+        During that time I
       </p>
       <ul class="list-disc list-inside text-gray-800 dark:text-gray-300 font-sans mb-6 space-y-1">
         <li>

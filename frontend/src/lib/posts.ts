@@ -1,43 +1,32 @@
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
-import { unified } from 'unified';
-import remarkParse from 'remark-parse';
-import remarkRehype from 'remark-rehype';
-import rehypeRaw from 'rehype-raw';
-import rehypeStringify from 'rehype-stringify';
-import rehypeHighlight from 'rehype-highlight';
+import fs from "fs";
+import path from "path";
+import { renderMarkdown } from "./markdown_pipeline";
 
-const postsDir = path.join(process.cwd(), 'src/posts');
+const postsDir = path.resolve("src/posts");
 
 export function getAllPosts() {
-  const files = fs.readdirSync(postsDir).filter((file) => file.endsWith('.md'));
-  return files.map((fileName) => {
-    const filePath = path.join(postsDir, fileName);
-    const fileContent = fs.readFileSync(filePath, 'utf-8');
-    const { data: frontmatter, content } = matter(fileContent);
-    const slug = fileName.replace(/\.md$/, '');
+  // Read directories inside postsDir
+  const postFolders = fs.readdirSync(postsDir, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name);
 
-    return { slug, frontmatter, content };
-  });
-}
+  const posts = postFolders.map((slug) => {
+    const mdPath = path.join(postsDir, slug, "index.md");
 
-export async function getPostBySlug(slug: string) {
-  const filePath = path.join(postsDir, `${slug}.md`);
-  if (!fs.existsSync(filePath)) return null;
+    if (!fs.existsSync(mdPath)) {
+      return null;
+    }
 
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  const { data: frontmatter, content } = matter(fileContent);
+    const content = fs.readFileSync(mdPath, "utf-8");
+    const { metadata } = renderMarkdown(content);
 
-  const processed = await unified()
-    .use(remarkParse)
-    .use(remarkRehype, { allowDangerousHtml: true })
-    .use(rehypeRaw)
-    .use(rehypeHighlight)
-    .use(rehypeStringify)
-    .process(content);
+    return {
+      slug,
+      ...metadata
+    };
+  }).filter(Boolean);
 
-  const html = processed.toString();
+  posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  return { slug, frontmatter, html };
+  return posts;
 }
