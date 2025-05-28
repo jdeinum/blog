@@ -11,5 +11,52 @@
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
 
-/* @import "prismjs/themes/prism-tomorrow.css"; */
-/* @import "prismjs/plugins/line-numbers/prism-line-numbers.css"; */
+
+pre[data-language] {
+  grid-template-columns: 3rem 1fr; /* fixed width column for line numbers */
+  padding: 0; /* add padding around whole block */
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  font-family: 'Fira Code', monospace;
+  background: var(--code-bg, #0d1117);
+  counter-reset: line;
+}
+
+pre[data-language] > code {
+  grid-column: 2; /* code in second column */
+  white-space: pre-wrap;
+}
+
+pre[data-language] > code > [data-line] {
+  display: block;
+  white-space: pre;
+  position: relative;
+}
+
+pre[data-language] > code > [data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+  grid-column: 1;
+  
+  /* Instead of absolute, make this inline-block and placed in first column */
+  position: relative;
+  display: inline-block;
+  width: 3rem;
+  text-align: center;
+  color: gray;
+  user-select: none;
+  margin-right: 0rem;
+}
+
+code[data-theme*=" "],
+code[data-theme*=" "] span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+
+/* Dark mode via Skeleton's data-mode attribute */
+[data-mode="dark"] code[data-theme*=" "],
+[data-mode="dark"] code[data-theme*=" "] span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}

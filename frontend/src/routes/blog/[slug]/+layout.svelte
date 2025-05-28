@@ -3,7 +3,7 @@
 </script>
 
 
-<div class="w-full sm:w-3/4 mx-auto px-4 mt-8 mb-8">
+<div class="w-full sm:w-2/3 mx-auto px-4 mt-8 mb-8">
   {@render children()}
 
   <div

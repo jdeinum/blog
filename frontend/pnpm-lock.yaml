@@ -11,6 +11,9 @@ importers:
       '@lucide/svelte':
         specifier: ^0.511.0
         version: 0.511.0(svelte@5.33.4)
+      '@rehype-pretty/transformers':
+        specifier: ^0.13.2
+        version: 0.13.2
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
@@ -50,6 +53,9 @@ importers:
       remark-rehype:
         specifier: ^11.1.2
         version: 11.1.2
+      shiki:
+        specifier: ^3.4.2
+        version: 3.4.2
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -376,6 +382,10 @@ packages:
 
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
+
+  '@rehype-pretty/transformers@0.13.2':
+    resolution: {integrity: sha512-p2ciQSwqy5Ip8aNUa9q6rdS/hJZXrxHYYfDVOHvKOsBu3t9HDmQ65YX6r9Qbl19vi160OAxmGF7MIoCRDJrRhg==}
+    engines: {node: '>=18'}
 
   '@rollup/plugin-commonjs@28.0.3':
     resolution: {integrity: sha512-pyltgilam1QPdn+Zd9gaCfOLcnjMEJ9gV+bTw6/r73INdvzf1ah9zLIJBm+kW7R6IUFIQ1YO+VqZtYxZNWFPEQ==}
@@ -2286,6 +2296,8 @@ snapshots:
       svelte: 5.33.4
 
   '@polka/url@1.0.0-next.29': {}
+
+  '@rehype-pretty/transformers@0.13.2': {}
 
   '@rollup/plugin-commonjs@28.0.3(rollup@4.41.1)':
     dependencies:

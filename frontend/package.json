@@ -46,6 +46,7 @@
 	},
 	"dependencies": {
 		"@lucide/svelte": "^0.511.0",
+		"@rehype-pretty/transformers": "^0.13.2",
 		"gray-matter": "^4.0.3",
 		"highlight.js": "^11.11.1",
 		"highlightjs-line-numbers.js": "^2.9.0",
@@ -59,6 +60,7 @@
 		"remark-parse": "^11.0.0",
 		"remark-parse-frontmatter": "^1.0.3",
 		"remark-rehype": "^11.1.2",
+		"shiki": "^3.4.2",
 		"unified": "^11.0.5"
 	}
 }
