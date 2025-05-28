@@ -5,11 +5,15 @@
 
 <div class="flex flex-col md:flex-row max-w-5xl mx-auto gap-8 p-8">
   <aside class="flex flex-col items-center gap-6 w-full md:w-48">
-    <Avatar
-      src="https://i.pravatar.cc/150?img=48"
-      name="Jacob Deinum"
-      size="xl"
-    />
+
+<div class="w-45 h-45 rounded-full overflow-hidden">
+  <Avatar
+    src="/me.jpg"
+    name="Jacob Deinum"
+    size="xl"
+  />
+</div>
+
     <h1 class="text-xl font-mono font-semibold tracking-tight whitespace-nowrap">
       Jacob Deinum
     </h1>
