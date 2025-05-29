@@ -64,17 +64,28 @@
       <!-- About Me -->
       <h2 class="text-2xl font-semibold mb-4 font-mono">About Me</h2>
       <p class="text-gray-800 dark:text-gray-300 font-sans leading-relaxed mb-6">
-        Welcome to my blog! I am a developer residing in Alberta Canada, but
-        originally from the Netherlands (Dual citizen). Outside of work I enjoy
-        backpacking, reading, climbing, and playing board / video games.
+        I am a software developer residing in Alberta Canada, but originally from the
+        Netherlands (Dual citizen). Outside of work I enjoy backpacking,
+        reading, climbing, and playing board / video games.
       </p>
+
+      <hr class="hr my-6" />
+
+      <!-- Interests -->
+      <h2 class="text-2xl font-semibold mb-4 font-mono">Interests</h2>
+      <ul class="list-disc list-inside text-gray-800 dark:text-gray-300 font-sans mb-6 space-y-1">
+        <li>Distributed Systems</li>
+        <li>System Performance</li>
+        <li>System Security</li>
+        <li>Rust & Wasm</li>
+      </ul>
 
       <hr class="hr my-6" />
 
       <!-- Day job -->
       <h2 class="text-2xl font-semibold mb-4 font-mono">Work</h2>
       <p class="text-gray-800 dark:text-gray-300 font-sans leading-relaxed mb-6">
-        I spend my days writing Rust at CarbinX Technologies We are developing a
+        I spend my days writing Rust at CarbinX Technologies. We are developing a
         microscale carbon capture device that aims to reduce carbon
         emissions in commercial buildings while also lowering energy
         costs. Our vision is to make them affordable and efficient
@@ -115,17 +126,6 @@
         I plan on returning to complete my masters at some point, focusing on
         distributed systems and performance analysis.
       </p>
-
-      <hr class="hr my-6" />
-
-      <!-- Interests -->
-      <h2 class="text-2xl font-semibold mb-4 font-mono">Interests</h2>
-      <ul class="list-disc list-inside text-gray-800 dark:text-gray-300 font-sans mb-6 space-y-1">
-        <li>Distributed Systems</li>
-        <li>System Performance</li>
-        <li>System Security</li>
-        <li>Rust & Wasm</li>
-      </ul>
 
       <hr class="hr my-6" />
 

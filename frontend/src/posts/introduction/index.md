@@ -30,18 +30,6 @@ researching an interesting topic, I'll do my best to put something out. \
 
 Having said that, there are a few topics that I was working on that I plan to
 release at some point. They are:
-
 1. Clock synchronization
-
-
-
-
-```rust
-async fn hello() {
-    println!("Hello there");
-    let mut x = 5;
-
-    x = 10;
-}
-```
-
+2. Code Quality Metrics
+3. Digitial Idenity in IoT
