@@ -8,7 +8,7 @@ export async function load({ params }) {
   const postPath = path.resolve('src/posts', slug, 'index.md');
 
   if (!fs.existsSync(postPath)) {
-    throw error(404, 'Post not found');
+    error(404, 'Post not found');
   }
 
   const content = fs.readFileSync(postPath, 'utf-8');
