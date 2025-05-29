@@ -3,8 +3,6 @@ import path from 'path';
 import { error } from '@sveltejs/kit';
 import { renderMarkdown } from '$lib/markdown_pipeline';
 
-export const prerender = true;
-
 export async function load({ params }) {
   const slug = params.slug;
   const postPath = path.resolve('src/posts', slug, 'index.md');
@@ -15,7 +13,6 @@ export async function load({ params }) {
 
   const content = fs.readFileSync(postPath, 'utf-8');
   const { html, metadata } = await renderMarkdown(content);
-  
 
   return {
     content: html,

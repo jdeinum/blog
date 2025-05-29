@@ -11,7 +11,7 @@ import { transformerCopyButton } from '@rehype-pretty/transformers'
 
 
 export async function renderMarkdown(content: string): { html: string; metadata: any } {
-  const file = await unified()
+  const file =  await unified()
     .use(remarkParse)
     .use(remarkFrontmatter, ["yaml"])
     .use(remarkParseFrontmatter)
@@ -39,6 +39,5 @@ export async function renderMarkdown(content: string): { html: string; metadata:
 
   const metadata = file.data?.frontmatter ?? {};
   const html = file.toString();
-
   return { html, metadata };
 }
