@@ -26,7 +26,7 @@ Learn more at [SvelteKit docs](https://kit.svelte.dev).
 Here's how you create a simple Svelte component:
 
 
-```rust {1-3,4}
+```rust
 async fn hello() {
     println!("Hello there");
     let mut x = 5;

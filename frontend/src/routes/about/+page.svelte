@@ -1,6 +1,13 @@
 <script lang="ts">
   import { Avatar } from '@skeletonlabs/skeleton-svelte';
-  import { Github, Key } from '@lucide/svelte';
+  import { Github, Key, Mail } from '@lucide/svelte';
+
+  const email = "jdeinum@nullspaces.org";
+
+  function copyEmailToClipboard(event: MouseEvent) {
+    event.preventDefault(); // prevent default link behavior for clipboard copy first
+    navigator.clipboard.writeText(email).then(() => {});
+  }
 </script>
 
 <div class="flex flex-col md:flex-row max-w-5xl mx-auto gap-8 p-8">
@@ -36,6 +43,17 @@
     >
       <Key class="w-5 h-5" />
       <span class="text-sm font-mono">GPG</span>
+    </a>
+    <a
+      href={`${email}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="flex items-center gap-2 text-gray-800 dark:text-gray-300 hover:text-primary transition-colors"
+      title="Copy Email"
+      onclick={copyEmailToClipboard}
+    >
+      <Mail class="w-5 h-5" />
+      <span class="text-sm font-mono">Copy Email</span>
     </a>
   </aside>
 
