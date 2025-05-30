@@ -28,8 +28,10 @@ I'll be honest in saying that I am not really fixated on producing content in
 regular intervals. Rather anytime I find an interesting problem, or am
 researching an interesting topic, I'll do my best to put something out. \
 
-Having said that, there are a few topics that I was working on that I plan to
-release at some point. They are:
+Having said that, there are a few topics that t I plan to release at some point.
+They are:
 1. Clock synchronization
 2. Code Quality Metrics
 3. Digitial Idenity in IoT
+4. Exactly once messaging
+

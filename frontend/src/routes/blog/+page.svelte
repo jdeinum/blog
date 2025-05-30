@@ -5,8 +5,6 @@
     posts: { slug: string; title: string; date: string }[];
   };
 
-  console.log(data.posts)
-
   let searchTerm = '';
 
   $: filteredPosts = data.posts.filter(post =>
