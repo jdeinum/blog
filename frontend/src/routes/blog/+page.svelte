@@ -8,7 +8,7 @@
   let searchTerm = '';
 
   $: filteredPosts = data.posts.filter(post =>
-    post.title.toLowerCase().includes(searchTerm.toLowerCase())
+    post.title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Helper function to get the ordinal suffix for a day number

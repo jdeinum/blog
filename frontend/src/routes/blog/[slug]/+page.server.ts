@@ -3,6 +3,7 @@ import path from 'path';
 import { error } from '@sveltejs/kit';
 import { renderMarkdown } from '$lib/markdown_pipeline';
 
+
 export async function load({ params }) {
   const slug = params.slug;
   const postPath = path.resolve('src/posts', slug, 'index.md');
