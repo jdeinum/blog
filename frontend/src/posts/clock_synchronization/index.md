@@ -44,19 +44,36 @@ Present in many pieces of software
 2. The problems with these crystals
 
 ## Overview of Clocks
-1. Monotomic 
-2. Wall Clock
-3. Logical Clocks
-4. Hybrid Clocks
-5. Vector Clocks
-6. Chain clocks?
-7. 
+#### Monotomic
+#### Wall Clock
+
+
+#### Logical Clocks
+
+Unlike the monotomic clock and the wall clock, the logical clock is fully
+independent of the device clock. They are defined exclusvely in software, and
+two independent logical clocks cannot be compared in any meaningful way. The
+algorithm is roughly as follows:
+
+1. Any time an event is discovered (message received, state changed, etc), you
+   increment your own logical clock.
+2. If you are sending knowledge of this event to another node, include the value
+   of your own logical clock. 
+3. Any time a message is received, you set your clock to the maximum of
+   (your_time, message_time)
+
+In rust, the algorithm looks something like this:
+
+
+
+#### Hybrid Clocks
+#### Vector Clocks
+#### Chain clocks
 
 
 ## The Problems of Unsynchronized Clocks
 1. Algorithms that depend on synchronized clocks
 2. Last Write Wins 
-3. 
 
 
 ## The Challenges of Synchronization
