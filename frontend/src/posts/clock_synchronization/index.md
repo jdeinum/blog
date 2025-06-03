@@ -93,23 +93,8 @@ for (;;) {
         if (i->until > t)
                 break;
 
-        /* Depending whether this is an mDNS shared entry
-         * either remove only this one RR or the whole RRset */
-        log_debug("Removing %scache entry for %s (expired "USEC_FMT"s ago)",
-                  i->shared_owner ? "shared " : "",
-                  dns_resource_key_to_string(i->key, key_str, sizeof key_str),
-                  (t - i->until) / USEC_PER_SEC);
-
-        if (i->shared_owner)
-                dns_cache_item_unlink_and_free(c, i);
-        else {
-                _cleanup_(dns_resource_key_unrefp) DnsResourceKey *key = NULL;
-
-                /* Take an extra reference to the key so that it
-                 * doesn't go away in the middle of the remove call */
-                key = dns_resource_key_ref(i->key);
-                dns_cache_remove_by_key(c, key);
-        }
+        // ...
+        // flushes the entry
 }
 ```
 
