@@ -29,25 +29,59 @@ mind:
 
 ####  Ordering Events
 
-The first and most common use for my work is to order events. Here are some of
-the things that come to mind:
+In some cases, we may wish to use time to determine *happens before*
+relationship for events, some examples might include:
 
 1. Determining the order that requests come in 
 2. Ordering logs to figure out the series of events that led to some outcome
 3. Ordering events in concurrent environments to see if any states prevent
    progress or correctness.
 
+An interesting note for event ordering is that you need not use the system clock
+at all. Events can be ordered using [logical clocks](#logical-clocks), which provide varying
+degrees of causality identification.
+
 #### Durations 
 
-Present in many pieces of software 
+Other situations may arise that require us to measure the length of some time
+frame. Some examples of this include: 
 
+1. Request timeouts
+2. Cache entry durations
+3. Span lengths in tracing 
+
+Durations do not require that the system clock is accurate to some reference
+time, but it does require that the clock moves forward at the right rate.
+Therefore it is best to use monotomic clocks because they are guaranteed to
+never move backwards in time.
 
 
 #### Comparison to some reference time
 
+Finally, in some cases we may desire to compare the current time to some
+external reference time. Some examples might include:
+
+1. Is it time to run my cron job?
+2. Is it currently a Saturday or Sunday?
+3. Is my clock within one hour of midnight UTC?
+
+To produce meaningful results, comparing wall clock times requires that your
+system clock is synchronized to some reference time. Usually this is done with a
+service such as NTP.
+
 ## Keeping Time
+
+### Quartz Crystal Oscillator
+
+For most of us (using the royal us because I have only met one person who has
+one of these), 
+
+
+
 1. Quartz Crystal Oscillator
 2. The problems with these crystals
+
+### GPS Appliances
 
 ## Overview of Clocks
 ### Physical Based Clocks
