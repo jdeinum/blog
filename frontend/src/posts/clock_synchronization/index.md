@@ -215,16 +215,103 @@ Atomic clocks are much much more accurate than QCOs. For example,
 uncertainty of 1 second in 300 million years.
 
 ## Operating System Clocks
+
+The oscillations produced by your hardware clock source drive a hardware timer
+that triggers kernel interrupts at set intervals. The kernel uses these
+interrupts to update both the monotonic and real time clocks. 
+
 #### Monotomic
-#### Wall Clock
+
+The monotonic clock is a clock source in Linux that measures the amount of time
+elapsed since some arbitrary point in time. Typically this when the device
+boots, but it can vary per platform. Because of this, comparing monotonic
+timestamps from two different machines typically has no meaning. Another
+property that monotonic clocks possess is that they are guaranteed to only move
+forwards. 
+
+Monotonic clocks still get adjusted by the Network Time Daemon, but only the
+rate at which time moves forward is adjusted (no setting the clock to the
+correct value). Literature has coined the term *slewing* for this process.
+
+Because the monotonic clocks only move forward, they are well suited to
+measuring [durations](#durations). Indeed, libraries like tokio use the
+monotonic clock to measure
+[durations](https://docs.rs/tokio/latest/tokio/time/struct.Instant.html).
+Therefore the following is valid:
+
+```rust
+use std::time::{Duration, Instant};
+// ...
+let start = Instant::now();
+doSomething();
+let end = Instant::now();
+
+let diff = end - start;  // CORRECT 
+                         // (barring that each tick may not be the same length)
+```
+
+#### Real Time Clock
+
+The wall clock, or alternatively the real time clock in Linux is the familiar
+clock on your computer. It tells you the time in some format that is useful to
+you. Two common formats within computer systems are:
+
+1. [Unix Time](https://en.wikipedia.org/wiki/Unix_time) (seconds since January 1st, 1970 UTC)
+2. [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) (2025-02-16 10:58:44.966864492+00:00)
+
+> **NOTE:** You might run across version like RFC-3339 or RFC-2822. These are
+> implementations of ISO 8601 with slight variations between them.
+
+Under the hood, the real time clock is just stored as a base value
+(`realtime_offset`) that is added to the monotonic clock to get the current real
+time. The `realtime_offset` is calculated at boot using the RTC and some other
+info.  
+
+Unlike the [monotonic](#monotomic) clocks, the real time clock does not
+guarantee that it only moves forward. Services like NTP can forceably set the
+value of the real time clock at will (although NTP has some
+[restrictions](https://www.ntp.org/documentation/4.2.8-series/clock/) on when it
+will step the clock). Therefore, the following is not valid:
+
+```rust
+use std::time::{Duration, SystemTime};
+// ...
+let start = SystemTime::now();
+doSomething();
+let end = SystemTime:now();
+
+let diff = end - start;  // INCORRECT 
+                         // diff can be < 0 if NTP steps the clock during line 4
+```
+
+## NTP & Clock Synchronization
+
+Now that we understand the two types of clocks on Linux (Real Time & Monotonic),
+we are ready to move on to NTP, which is a common mechanism used to synchronize
+clocks to some external source. Before looking at NTP, it's important to
+understand what we mean by *synchronize* here. Synchronize in this case refers
+to:
+
+1. Having the value of the clock be close to some desired value (Real time only)
+2. Having the clock move forward at the correct rate (Real time and Monotonic)
+
+NTP handles both of these cases by *stepping* the clock (setting its value) and
+*slewing* the clock (changing the rate at which it moves forward). I won't go
+into the detail of how it does this within the kernel, but it's source can be
+found [here](https://github.com/torvalds/linux/blob/master/kernel/time/ntp.c).
+Additionally the official
+[docs](https://www.ntp.org/documentation/4.2.8-series/sitemap/) are an excellent
+resource.
+
+### Overview 
+
+So how does NTP actually determine what the clock drift is? 
 
 
-## Synchronizing Clocks
-1. Having clocks agree with eachother 
-2. Having clocks agree with some reference source
-3. Sources of truth 
 
-## NTP & PTP
+
+
+
 1. An overview of NTP 
 2. How NTP actually works (4 timestamps + calculations)
 
