@@ -7,15 +7,17 @@ date: 2025-05-31
 
 ## Overview
 
-Device clocks are never really something I paid attention to during school, or
-the first few years of my career. I just assumed clocks were working
-reasonably well, or atleast well enough to not cause me any problems. The first
-time this proved false for me was when I had to debug a Kerberos implementation.
-The kerberos implementation had a dedicated host, and clients would connect to
-receive tickets that allowed them to get access to resources. The trouble we
-started running into was that the tickets stopped granting access to the
-resources. At first we thought this was a problem with our either our Kerberos
-install or how the application used the ticket to access the resources.
+Time is a deceptively tricky thing. I accumulated some basic knowledge over the
+years of how time works in Linux systems, but I've never really needed to use it
+until now. Recently, I started working on our IoT logging platform we built on
+top of Loki. For managing distributed state, we use version vectors within
+Postgres, and its been working fine. Something we lacked however was fine
+grained comparisons for events across nodes. We knew going into it that we
+couldn't absolutely trust them, but it would be useful to understand a series of
+events without needing the overhead of tracing. This article isn't the solution
+we came up with, but rather just an overview of physical time in computer
+systems.
+
 
 ## Using Time
 
@@ -49,7 +51,7 @@ frame. Some examples of this include:
 3. Span lengths in tracing
 
 A concrete example where durations are used is within DNS clients. When an
-authorativive DNS server provides a response to a query, it includes a TTL for
+authoritative DNS server provides a response to a query, it includes a TTL for
 how long we can cache that entry for. [systemd-resolved]() is a common DNS
 resolver in Linux based systems. When systemd-resolved gets a response, it
 determines how long to cache it for based on the TTL and some other metadata,
@@ -125,7 +127,6 @@ So on those dates at midnight, the keys are no longer valid and should not be
 used.
 
 
-
 ## Keeping Time
 
 Now that we have a better understanding of the things we use time for, let's
@@ -151,7 +152,7 @@ electric voltage is applied to the crystal, it deforms slightly due to the
 piezoelectric effect. This deformation changes the shape of the crystal. When
 the voltage is removed, the crystal attempts to return to its original shape,
 and this process causes the crystal to vibrate at a very stable frequency. These
-vibrations (oscillations) are what are used to keep time.  
+vibrations (oscillations) are what are used to keep time. 
 
 The frequency of oscillation is highly stable, typically accurate to within
 around 50 parts per million (ppm). This means that over the course of a day, the
@@ -161,10 +162,15 @@ or about 50 microseconds per second.
 One of the primary problems with QCOs is that their oscillation changes with
 temperature. The crystals themselves are designed to be the most accurate at
 room temperature (20 degrees celcius). Deviating from this temperature results
-in a quadratic decrease in the clock speed. What this means is that if your
-system is under a lot of load, say at or over capacity for the number of
-requests it can handle per second, the QCO will oscillate at a different freqncy
-and time will appear to move slower or faster than it should.  
+in a quadratic decrease in the clock speed: `Δf(T)≈k⋅(T−T0)` where T0 ~ 20
+degrees Celsius.
+
+What this means is that if your system is under a lot of load, say at or over
+capacity for the number of requests it can handle per second, the QCO will
+oscillate at a different frequency and time will appear to move faster than it
+should:
+
+![Deviation Plot](src/posts/clock_synchronization/assets/quartz_deviation.png)
 
 In Linux systems, we can see the name of our hardware clock by looking in the
 `/sys` directory:
@@ -189,18 +195,22 @@ For use cases where more accuracy is needed, atomic clocks are an alternative to
 QCOs that use the transitions of atoms from one energy state to another as a
 reference.
 
-The basis for atomic clocks is a collecton of atoms that can be in one of two
+The basis for atomic clocks is a collection of atoms that can be in one of two
 energy states. Typically, atoms with very specific and stable energy differences
 like Cesium-133 are chosen. A number of these atoms are prepared by putting them
 in the lower energy state. By exposing these atoms to radiation of a particular
 frequency, we can get the maximum number of atoms transitioning to their higher
 energy state. By measuring the number of atoms that transitioned between these
 states, we can determine how close our microwave oscillator is to being the
-exact frequncy of the natural transition of the atom, and make small adjustments
-if needed. The result is the we can use the microwave oscialltor as an extremely
-stable time source. For Cesium, it osciallates 9,192,631,770 times per second.
-So we count the number of osciallations and derive elapsed time from that. This
+exact frequency of the natural transition of the atom, and make small adjustments
+if needed. The result is the we can use the microwave oscillator as an extremely
+stable time source. For Cesium, it oscillates 9,192,631,770 times per second.
+So we count the number of oscillations and derive elapsed time from that. This
 is actually how the SI unit second (S) is defined. 
+
+![Atomic Clocks](./assets/atomic.png) 
+
+[source](https://hackaday.com/wp-content/uploads/2015/10/atomicclock.png)
 
 GPS, the system we all know and love consists of a series of satellites around
 the globe. Each of these satellites contain an atomic clock. Therefore, one
@@ -302,6 +312,10 @@ found [here](https://github.com/torvalds/linux/blob/master/kernel/time/ntp.c).
 Additionally the official
 [docs](https://www.ntp.org/documentation/4.2.8-series/sitemap/) are an excellent
 resource.
+
+IMAGE SHOWING SLEWING FROM SYSTEM
+
+IMAGE SHOWING STEPPING FROM SYSTEM
 
 ### Overview 
 
