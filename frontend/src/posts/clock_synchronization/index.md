@@ -170,7 +170,12 @@ capacity for the number of requests it can handle per second, the QCO will
 oscillate at a different frequency and time will appear to move faster than it
 should:
 
-![Deviation Plot](src/posts/clock_synchronization/assets/quartz_deviation.png)
+<figure class="text-center my-4">
+  <img src="/posts/clock_synchronization/quartz_deviation.png" alt="Deviation Plot" />
+  <figcaption class="text-sm text-secondary mt-2">
+    Figure 1: Frequency deviation
+  </figcaption>
+</figure>
 
 In Linux systems, we can see the name of our hardware clock by looking in the
 `/sys` directory:
@@ -208,9 +213,14 @@ stable time source. For Cesium, it oscillates 9,192,631,770 times per second.
 So we count the number of oscillations and derive elapsed time from that. This
 is actually how the SI unit second (S) is defined. 
 
-![Atomic Clocks](./assets/atomic.png) 
-
-[source](https://hackaday.com/wp-content/uploads/2015/10/atomicclock.png)
+<figure class="text-center my-4">
+  <img src="/posts/clock_synchronization/atomic.png" alt="Atomic Plot" />
+  <figcaption class="text-sm text-secondary mt-2">
+    <a href="https://hackaday.com/wp-content/uploads/2015/10/atomicclock.png" target="_blank" rel="noopener noreferrer" class="underline hover:text-primary">
+    Figure 2: Atomic Clock
+    </a>
+  </figcaption>
+</figure>
 
 GPS, the system we all know and love consists of a series of satellites around
 the globe. Each of these satellites contain an atomic clock. Therefore, one
@@ -311,23 +321,91 @@ into the detail of how it does this within the kernel, but it's source can be
 found [here](https://github.com/torvalds/linux/blob/master/kernel/time/ntp.c).
 Additionally the official
 [docs](https://www.ntp.org/documentation/4.2.8-series/sitemap/) are an excellent
-resource.
+resource.  
 
-IMAGE SHOWING SLEWING FROM SYSTEM
+Figure 3 shows both the correction applied to my local clock as well as the
+drift from upstream NTP servers. It seems really... sporatic, and chrony appears
+to be stepping the clock fairly frequently. My guesses as to why it is so
+volatile is that my laptop is oldish (8 years), closing the lid prevents
+synchronization for periods at a time, and maybe that I don't have the correct
+upstream NTP servers set. I captured all of the values using `chronyc
+tracking` and a systemd timer to have it run every minute.
 
-IMAGE SHOWING STEPPING FROM SYSTEM
+
+<figure class="text-center my-4">
+  <img src="/posts/clock_synchronization/local_ntp.png" alt="Local NTP Skew" />
+  <figcaption class="text-sm text-secondary mt-2">
+    Figure 3: Local NTP Corrections and Offset
+  </figcaption>
+</figure>
 
 ### Overview 
 
-So how does NTP actually determine what the clock drift is? 
+> **NOTE:** There are a few different ways you can run NTP. I'll only be discussing the
+> basic client server model here.
+
+Imagine a world where all network delay is exactly TN, and there is no
+processing delay. In such a world, you can imagine the server determines the
+clock skew using something similar to the following:
+
+1. The NTP client sends a message M1 to the NTP server, including its current time T0
+2. The NTP server receives M1, and replies with its own message M2 including T0
+   and T1, where T1 is the servers current timestamp.
+3. The NTP client records T1
+
+From these 3 timestamps, we can determine the following:  
+
+Clock difference = T1 - T0 - TN  
+
+Clock skew = (T2 - T0 - 3 * TN) 
+
+This is all the info the NTP server needs to tell your clock how to adjust
+itself (alongside some other info).  
+
+Things get a little more tricky when you take away the unrealistic assumptions.
+We'll instead consider our network link to be fair loss, that is, each message
+has probability *p* that it gets dropped, but if you continue retrying, it will
+eventually succeed. We also introduce processing delays for messages for both
+parties. Because TN is no longer constant, we can't calculate these values with
+just 3 timestamps. NTP works as follows:
+
+1. The NTP client sends a request M1 to the NTP server, including its timestamp T0 
+2. The server records its timestamp T1 when it receives M1, and sends back M2
+   which contains T0,T1,T2 where T2 is the timestamp of the server when M2 was
+    sent. 
+3. Finally, the client records T3, which is the timestamp at which it receives
+   M2
+
+From these 4 timestamps, we can calculate the clock skew. Before we can do that
+however, we need to know the total network delay, i.e the total amount of time
+our two messages are moving over the network. Ideally we'd like to know the
+breakdown of how long each message was on the network, but this would require we
+have synchronized clocks, which we can't guarantee. Instead, we'll calculate the
+total network delay and assume the M1 and M2 have the same network delay (i.e
+symmetric)
+
+Total network delay = (T3 - T0) - (T2 - T1)
+
+(T3 - T0) is the total amount of time the client was waiting until it receives
+the response, and (T2 - T1) represents the processing delay on the server.  
+
+The first thing we can note is that when the client receives M2, it expects the
+server clock to be at T3 + (TND / 2).
+
+And finally, the estimated clock skew would be T3 + (TND / 2) - T4 
 
 
+Once the NTP client has the clock skew, what it does actually depends on the
+size of the clock skew.  
 
+If the clock skew is <125ms, the ntp client will slew the clock by up to 500ppm 
 
+If the clock skew if between 125ms and 1000s, the client will step the clock to
+the correct value. 
 
+If the clock skew is >1000s, it does nothing, because clearly there is something
+very wrong.
 
-1. An overview of NTP 
-2. How NTP actually works (4 timestamps + calculations)
 
 ## The Challenges of Synchronization
 1. Timer per CPU, OS has to provide a consistent view 
