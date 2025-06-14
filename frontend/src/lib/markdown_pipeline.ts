@@ -8,6 +8,8 @@ import rehypeRaw from "rehype-raw";
 import rehypeStringify from "rehype-stringify";
 import rehypePrettyCode from 'rehype-pretty-code';
 import { transformerCopyButton } from '@rehype-pretty/transformers'
+import rehypeTypst from '@myriaddreamin/rehype-typst'
+import remarkMath from 'remark-math'
 
 
 export async function renderMarkdown(content: string): { html: string; metadata: any } {
@@ -15,9 +17,14 @@ export async function renderMarkdown(content: string): { html: string; metadata:
     .use(remarkParse)
     .use(remarkFrontmatter, ["yaml"])
     .use(remarkParseFrontmatter)
+    .use(remarkMath)
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
+    .use(rehypeTypst, {
+
+
+    })
     .use(rehypePrettyCode, {
       keepBackground: true,
       grid: true,
@@ -36,6 +43,8 @@ export async function renderMarkdown(content: string): { html: string; metadata:
     })
     .use(rehypeStringify)
     .process(content);
+
+    
 
   const metadata = file.data?.frontmatter ?? {};
   const html = file.toString();

@@ -7,9 +7,7 @@ date: 2025-05-31
 
 ## Overview
 
-Time is a deceptively tricky thing. I accumulated some basic knowledge over the
-years of how time works in Linux systems, but I've never really needed to use it
-until now. Recently, I started working on our IoT logging platform we built on
+Recently, I started working on our IoT logging platform we built on
 top of Loki. For managing distributed state, we use version vectors within
 Postgres, and its been working fine. Something we lacked however was fine
 grained comparisons for events across nodes. We knew going into it that we
@@ -64,7 +62,7 @@ timestamp = now(CLOCK_BOOTTIME);
 
 For those of you wondering, CLOCK_BOOTTIME
 [is](https://www.man7.org/linux/man-pages/man7/time_namespaces.7.html) a
-[monotomic]() clock:
+[monotonic]() clock:
 
 ```
 CLOCK_MONOTONIC (and likewise CLOCK_MONOTONIC_COARSE and CLOCK_MONOTONIC_RAW), a
@@ -76,7 +74,7 @@ identical to CLOCK_MONOTONIC, except that it also includes any time that the
 system is suspended.
 ```
 
-Systemd-resolved peridocially checks to see whether that time has elasped, and
+Systemd-resolved periodically checks to see whether that time has elapsed, and
 flushes the key if so:
 
 ```c
@@ -161,7 +159,7 @@ or about 50 microseconds per second.
 
 One of the primary problems with QCOs is that their oscillation changes with
 temperature. The crystals themselves are designed to be the most accurate at
-room temperature (20 degrees celcius). Deviating from this temperature results
+room temperature (20 degrees Celsius). Deviating from this temperature results
 in a quadratic decrease in the clock speed: `Δf(T)≈k⋅(T−T0)` where T0 ~ 20
 degrees Celsius.
 
@@ -240,7 +238,7 @@ The oscillations produced by your hardware clock source drive a hardware timer
 that triggers kernel interrupts at set intervals. The kernel uses these
 interrupts to update both the monotonic and real time clocks. 
 
-#### Monotomic
+#### Monotonic
 
 The monotonic clock is a clock source in Linux that measures the amount of time
 elapsed since some arbitrary point in time. Typically this when the device
@@ -287,7 +285,7 @@ Under the hood, the real time clock is just stored as a base value
 time. The `realtime_offset` is calculated at boot using the RTC and some other
 info.  
 
-Unlike the [monotonic](#monotomic) clocks, the real time clock does not
+Unlike the [monotonic](#monotonic) clocks, the real time clock does not
 guarantee that it only moves forward. Services like NTP can forceably set the
 value of the real time clock at will (although NTP has some
 [restrictions](https://www.ntp.org/documentation/4.2.8-series/clock/) on when it
@@ -324,12 +322,10 @@ Additionally the official
 resource.  
 
 Figure 3 shows both the correction applied to my local clock as well as the
-drift from upstream NTP servers. It seems really... sporatic, and chrony appears
-to be stepping the clock fairly frequently. My guesses as to why it is so
-volatile is that my laptop is oldish (8 years), closing the lid prevents
-synchronization for periods at a time, and maybe that I don't have the correct
-upstream NTP servers set. I captured all of the values using `chronyc
-tracking` and a systemd timer to have it run every minute.
+drift from upstream NTP servers. It seems pretty solid. 4000 ppm is 4
+milliseconds, so my clock is still working well and the corrections are typically
+less than 50ppm. I captured all of the values using `chronyc tracking` and a
+systemd timer to have it run every minute.
 
 
 <figure class="text-center my-4">
@@ -344,20 +340,21 @@ tracking` and a systemd timer to have it run every minute.
 > **NOTE:** There are a few different ways you can run NTP. I'll only be discussing the
 > basic client server model here.
 
-Imagine a world where all network delay is exactly TN, and there is no
+Imagine a world where all network delay is exactly $T_N$,and there is no
 processing delay. In such a world, you can imagine the server determines the
 clock skew using something similar to the following:
 
-1. The NTP client sends a message M1 to the NTP server, including its current time T0
-2. The NTP server receives M1, and replies with its own message M2 including T0
-   and T1, where T1 is the servers current timestamp.
-3. The NTP client records T1
+1. The NTP client sends a message $M_1$ to the NTP server, including its current time $T_0$
+2. The NTP server receives $M_1$, and replies with its own message $M_2$ including $T_0$
+   and $T_1$, where $T_1$ is the servers current timestamp.
+3. The NTP client records $T_1$
 
-From these 3 timestamps, we can determine the following:  
+From these 3 timestamps, we can determine the following: 
 
-Clock difference = T1 - T0 - TN  
-
-Clock skew = (T2 - T0 - 3 * TN) 
+```math
+"Clock Difference" = T_1 - T_0 - T_N  \
+"Clock Skew" = (T_2 - T_0 - 3 dot T_N) 
+```
 
 This is all the info the NTP server needs to tell your clock how to adjust
 itself (alongside some other info).  
@@ -365,34 +362,36 @@ itself (alongside some other info).
 Things get a little more tricky when you take away the unrealistic assumptions.
 We'll instead consider our network link to be fair loss, that is, each message
 has probability *p* that it gets dropped, but if you continue retrying, it will
-eventually succeed. We also introduce processing delays for messages for both
-parties. Because TN is no longer constant, we can't calculate these values with
-just 3 timestamps. NTP works as follows:
+eventually succeed. We also introduce processing delays for both parties.
+Because $T_N$ is no longer constant, we can't calculate these values with just 3
+timestamps. NTP works as follows:
 
-1. The NTP client sends a request M1 to the NTP server, including its timestamp T0 
-2. The server records its timestamp T1 when it receives M1, and sends back M2
-   which contains T0,T1,T2 where T2 is the timestamp of the server when M2 was
-    sent. 
-3. Finally, the client records T3, which is the timestamp at which it receives
-   M2
+1. The NTP client sends a request $M_1$ to the NTP server, including its timestamp $T_0$
+2. The server records its timestamp T1 when it receives $M_1$, and sends back $M_2$
+   which contains $T_0$,$T_1$,$T_2$ where $T_2$ is the timestamp of the server when $M_2$ was
+    sent.
+3. Finally, the client records $T_3$, which is the timestamp at which it receives
+   $M_2$.
 
 From these 4 timestamps, we can calculate the clock skew. Before we can do that
 however, we need to know the total network delay, i.e the total amount of time
 our two messages are moving over the network. Ideally we'd like to know the
 breakdown of how long each message was on the network, but this would require we
-have synchronized clocks, which we can't guarantee. Instead, we'll calculate the
+have synchronized clocks, which we likely don't have. Instead, we'll calculate the
 total network delay and assume the M1 and M2 have the same network delay (i.e
-symmetric)
+symmetric).
 
-Total network delay = (T3 - T0) - (T2 - T1)
+```math
+"Total network delay" = (T_3 - T_0) - (T_2 - T_1)
+```
 
-(T3 - T0) is the total amount of time the client was waiting until it receives
-the response, and (T2 - T1) represents the processing delay on the server.  
+The $(T_3 - T_0)$ is the total amount of time the client was waiting until it receives
+the response, and $(T_2 - T_1)$ represents the processing delay on the server.  
 
 The first thing we can note is that when the client receives M2, it expects the
-server clock to be at T3 + (TND / 2).
+server clock to be at $T_3 + ("TND" / 2)$
 
-And finally, the estimated clock skew would be T3 + (TND / 2) - T4 
+And finally, the estimated clock skew would be $T_3 + ("TND" / 2) - T_4$
 
 
 Once the NTP client has the clock skew, what it does actually depends on the
@@ -408,12 +407,88 @@ very wrong.
 
 
 ## The Challenges of Synchronization
-1. Timer per CPU, OS has to provide a consistent view 
-3. Network delays affect time synchronization 
-4. Users might actually want clocks to be apart (for games)
-5. Can you trust your sources? Is there built in protection against outliers?
-6. Virtual machine clocks, plus process pauses
+
+#### Network Delay
+
+While NTP and its younger sibling, PTP, are the defacto solution for
+synchronizing
+clocks across a network, they still fall victim to poor networks. If the network
+delay is highly variable, NTP will likely provide an accurate representation of
+the clock skew. Consider a simple case where typically the network delay between
+the client and the server is 100ms (each direction). After the client sends m1,
+the link between the server and the client becomes saturated and M2 takes 1s to
+arrive back to the client. Even though in reality our one way travel time is
+100ms, NTP will calculate the one way travel time to be 550ms, which will result
+in our clock being set to an incorrect time.
+
+
+#### Do you trust your source?
+
+When NTP clients seek to determine the current real time, it queries an external
+source for this data. How do we actually know that the source we are querying is
+trustworthy and not a malicious actor? NTP employs several techniques to help
+with this.  
+
+First, and NTP client is typically configured to query many servers,
+and algorithms are used remove outliers from this sample. This way if one of
+your NTP servers is providing nonsensical values, your system still functions
+correctly.  
+
+Secondly, each server can be queried multiple times over a short period to help
+account for some of the random network error.  
+
+Finally, one can look at something like
+[NTS](https://blog.meinbergglobal.com/2021/07/14/network-time-security-nts-updated-security-for-ntp/)
+so that you only accept time from an server who you trust.  
+
+
+
+#### Users and Time
+
+In some distributed systems, you may not have control over the clocks. Consider
+phones, which allow users to set their own clocks arbitrarily. In some cases,
+users themselves may choose to change the time to a purposefully incorrect
+value. When I was 14, I played a mobile game called smurfs village, a standard
+base-builder style of game. Impatient me wasn't going to wait a full week just
+for a bridge to finish building, so I just set my clock forward until it
+finished, and then reset it to the correct value some time later. How do you
+protect against something like this? How do you manage events these devices are
+producing?
+
+#### Timer Per CPU 
+
+Most CPUs nowadays have a timer per core, x86 has the
+[TSC](https://en.wikipedia.org/wiki/Time_Stamp_Counter) and AMD has the
+[CNTVCT_EL0](https://developer.arm.com/documentation/ddi0595/2020-12/AArch64-Registers/CNTVCT-EL0--Counter-timer-Virtual-Count-register?lang=en)
+register. How does one provide a consistent time if a task may be scheduled
+across different cores? Typically the OS is responsible for providing a
+consistent overlay that processes can use that hides these differences. 
+
 
 ## The Problems of Unsynchronized Clocks
-1. Algorithms that depend on synchronized clocks
-2. Last Write Wins 
+
+#### Algorithms That Depend On Synchronized Clocks
+
+One of the main problems with unsynchronized clocks are that many algorithms
+depend on time for correctness. Consider Kerberos, a network authentication
+protocol used to provide access to services for services and users. Kerberos
+assigns tickets that are only valid for some time frame, say 30 minutes. If an
+actor controlled the clock of either the Kerberos server, or the clock of a
+service accepting a ticket, you can skew the clocks enough in the past / future
+to prevent any access to that service. You could also look at it from the other
+direction, if an adversary managed to capture a valid ticket, he could set the
+clock so that the ticket is valid indefinitely. A less common problem is where
+time is used is in seeding
+[PRNGs](https://en.wikipedia.org/wiki/Pseudorandom_number_generator). If a
+codebase happens to use a PRNG instead of a secure RNG, then by setting the
+clock to a preset value may allow the malicious actor to know which values will
+be generated over time.
+
+
+#### Last Write Wins
+
+In some database systems, the result of two concurrent writers for the same key
+is often settled using the timestamps attached to both of the writes. This
+strategy is known as *last write wins* and is highly susceptible to clock skew.
+If server As clock is far enough behind Bs, then even if A wrote after B, its
+write would be silently dropped because its time is earlier than that of Bs.  

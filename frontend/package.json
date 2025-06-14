@@ -45,6 +45,7 @@
 	},
 	"dependencies": {
 		"@lucide/svelte": "^0.511.0",
+		"@myriaddreamin/rehype-typst": "^0.6.0",
 		"@rehype-pretty/transformers": "^0.13.2",
 		"highlight.js": "^11.11.1",
 		"highlightjs-line-numbers.js": "^2.9.0",
@@ -55,6 +56,7 @@
 		"rehype-stringify": "^10.0.1",
 		"remark-frontmatter": "^5.0.0",
 		"remark-gfm": "^4.0.1",
+		"remark-math": "^6.0.0",
 		"remark-parse": "^11.0.0",
 		"remark-parse-frontmatter": "^1.0.3",
 		"remark-rehype": "^11.1.2",
