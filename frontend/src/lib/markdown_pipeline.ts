@@ -10,6 +10,8 @@ import rehypePrettyCode from 'rehype-pretty-code';
 import { transformerCopyButton } from '@rehype-pretty/transformers'
 import rehypeTypst from '@myriaddreamin/rehype-typst'
 import remarkMath from 'remark-math'
+import rehypeMermaid from 'rehype-mermaid'
+
 
 
 export async function renderMarkdown(content: string): { html: string; metadata: any } {
@@ -21,9 +23,10 @@ export async function renderMarkdown(content: string): { html: string; metadata:
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
-    .use(rehypeTypst, {
-
-
+    .use(rehypeTypst)
+    .use(rehypeMermaid, {
+        strategy: 'img-svg',
+        dark: true
     })
     .use(rehypePrettyCode, {
       keepBackground: true,

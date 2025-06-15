@@ -79,7 +79,13 @@ impl LamportClock {
 }
 ```
 
-EVENTS IMAGE  
+```mermaid
+sequenceDiagram
+    A->>A: Garbage collection
+    John-->>Alice: Great!
+    Alice-)John: See you later!
+```
+
 
 Lamport clock have several interesting properties. First, they provide 
 
